@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Local AI Hardware & VRAM Calculator - Check if your GPU, Mac, or PC can run DeepSeek-R1, Llama 3.3, Qwen 2.5, Flux, and calculate 24/7 electricity costs.">
+  <title>VRAMForge | Local AI Hardware, VRAM & Electricity Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+
+  <!-- Ambient Glow Background -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container nav-wrap">
+      <div class="logo">
+        <span class="logo-badge">⚡</span>
+        <div class="logo-text">
+          <span class="logo-title">VRAM<span>FORGE</span></span>
+          <span class="logo-sub">LOCAL AI SIZING MATRIX</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span>DeepSeek-R1 &amp; Llama 3.3 Updated</span>
+        </div>
+        <a href="#benchmarks" class="nav-link">Model Specs</a>
+        <a href="#power-calc" class="nav-link">Power Cost</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Headline -->
+  <section class="hero-intro">
+    <div class="container text-center">
+      <div class="chip">
+        <span class="chip-icon">🤖</span>
+        <span>Zero-Guesswork Local LLM Hardware Sizing</span>
+      </div>
+      <h1>Can You Run <span>Local AI</span> On Your Rig?</h1>
+      <p class="hero-sub">
+        Accurately calculate model weights, context window (KV cache), VRAM headroom, token inference speeds, and 24/7 power costs before downloading hundreds of gigabytes.
+      </p>
+
+      <!-- Quick Hardware Presets -->
+      <div class="presets-row">
+        <span class="preset-label">Quick Presets:</span>
+        <button type="button" class="preset-btn" data-preset="rtx3060">RTX 3060 (12GB)</button>
+        <button type="button" class="preset-btn" data-preset="rtx4070">RTX 4070 (12GB)</button>
+        <button type="button" class="preset-btn" data-preset="rtx4090">RTX 4090 (24GB)</button>
+        <button type="button" class="preset-btn" data-preset="macm4pro">Mac Mini M4 Pro (24GB)</button>
+        <button type="button" class="preset-btn" data-preset="macm2ultra">Mac Studio Ultra (64GB)</button>
+        <button type="button" class="preset-btn" data-preset="dual3090">Dual RTX 3090 (48GB)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Calculator Engine -->
+  <main class="container app-container">
+    <div class="calc-grid">
+
+      <!-- Column 1: Configurator Inputs -->
+      <div class="config-col card">
+        <div class="card-header">
+          <div class="step-badge">1</div>
+          <h2>Configure Hardware &amp; Model</h2>
+        </div>
+
+        <form id="calcForm" class="config-form">
+
+          <!-- Section: Your Hardware -->
+          <div class="form-section">
+            <label class="section-title">A. Your Hardware Platform</label>
+            <div class="form-row-2">
+              <div class="field">
+                <label for="platformType">Platform Architecture</label>
+                <select id="platformType" class="input-select">
+                  <option value="nvidia">NVIDIA Dedicated GPU (CUDA)</option>
+                  <option value="apple">Apple Silicon (Unified Memory / Metal)</option>
+                  <option value="amd">AMD Radeon (ROCm)</option>
+                  <option value="cpu">CPU + System RAM Only</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="vramAmount">Available Memory (VRAM / RAM)</label>
+                <div class="input-unit-wrap">
+                  <input type="number" id="vramAmount" min="2" max="512" value="12" step="1" class="input-num">
+                  <span class="unit-tag">GB</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Memory Slider -->
+            <div class="slider-field">
+              <input type="range" id="vramSlider" min="4" max="128" step="2" value="12" class="range-slider">
+              <div class="range-marks">
+                <span>8GB</span>
+                <span>16GB</span>
+                <span>24GB</span>
+                <span>32GB</span>
+                <span>64GB</span>
+                <span>128GB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Target Model -->
+          <div class="form-section">
+            <label class="section-title">B. Target AI Model</label>
+
+            <div class="field">
+              <label for="modelSelect">Select Open-Weight Model</label>
+              <select id="modelSelect" class="input-select">
+                <!-- DeepSeek Family -->
+                <optgroup label="DeepSeek-R1 (Trending Open-Reasoning)">
+                  <option value="deepseek-r1-1.5b">DeepSeek-R1 (1.5B) - Ultra-Light</option>
+                  <option value="deepseek-r1-7b">DeepSeek-R1 (7B) - High Accuracy</option>
+                  <option value="deepseek-r1-8b" selected>DeepSeek-R1 (8B) - Recommended Daily</option>
+                  <option value="deepseek-r1-14b">DeepSeek-R1 (14B) - Heavy Coder</option>
+                  <option value="deepseek-r1-32b">DeepSeek-R1 (32B) - Near Frontier</option>
+                  <option value="deepseek-r1-70b">DeepSeek-R1 (70B) - Frontier Reasoning</option>
+                  <option value="deepseek-r1-671b-moe">DeepSeek-R1 (671B MoE / 37B Active)</option>
+                </optgroup>
+
+                <!-- Llama 3 Family -->
+                <optgroup label="Meta Llama 3.3 &amp; 3.1 Family">
+                  <option value="llama-3.2-1b">Llama 3.2 (1B) - Edge Device</option>
+                  <option value="llama-3.2-3b">Llama 3.2 (3B) - Compact Assistant</option>
+                  <option value="llama-3.1-8b">Llama 3.1 (8B) - General Workhorse</option>
+                  <option value="llama-3.3-70b">Llama 3.3 (70B) - SOTA Open Weights</option>
+                  <option value="llama-3.1-405b">Llama 3.1 (405B) - Mega Frontier</option>
+                </optgroup>
+
+                <!-- Qwen 2.5 -->
+                <optgroup label="Alibaba Qwen 2.5 (Top Coding &amp; Math)">
+                  <option value="qwen-2.5-7b">Qwen 2.5 (7B)</option>
+                  <option value="qwen-2.5-14b">Qwen 2.5 (14B)</option>
+                  <option value="qwen-2.5-32b">Qwen 2.5 (32B) - Elite Coding</option>
+                  <option value="qwen-2.5-72b">Qwen 2.5 (72B) - Flagship</option>
+                </optgroup>
+
+                <!-- Mistral / Mixtral -->
+                <optgroup label="Mistral &amp; MoE">
+                  <option value="mistral-7b">Mistral (7B v0.3)</option>
+                  <option value="mixtral-8x7b">Mixtral 8x7B (MoE 47B Total)</option>
+                  <option value="mistral-nemo-12b">Mistral NeMo (12B)</option>
+                </optgroup>
+
+                <!-- Image Diffusion / Flux -->
+                <optgroup label="Image Generation (Text-to-Image)">
+                  <option value="flux-schnell">Black Forest FLUX.1 [schnell] (12B)</option>
+                  <option value="flux-dev">Black Forest FLUX.1 [dev] (12B)</option>
+                  <option value="sdxl-base">Stable Diffusion XL (SDXL 6.6B)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-row-2">
+              <div class="field">
+                <label for="quantSelect">Quantization (Precision)</label>
+                <select id="quantSelect" class="input-select">
+                  <option value="q4_k_m" selected>Q4_K_M (4-bit - Recommended Standard)</option>
+                  <option value="q8_0">Q8_0 (8-bit - High Precision)</option>
+                  <option value="fp16">FP16 / BF16 (16-bit - Uncompressed Studio)</option>
+                  <option value="q5_k_m">Q5_K_M (5-bit - Great Balance)</option>
+                  <option value="q3_k_m">Q3_K_M (3-bit - Extreme VRAM Squeeze)</option>
+                  <option value="q2_k">Q2_K (2-bit - Minimalist)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="contextLength">Context Window (Tokens)</label>
+                <select id="contextLength" class="input-select">
+                  <option value="4096">4,096 tokens (Standard QA)</option>
+                  <option value="8192" selected>8,192 tokens (Common Coding)</option>
+                  <option value="16384">16,384 tokens (Document Parsing)</option>
+                  <option value="32768">32,768 tokens (Full Repositories)</option>
+                  <option value="65536">65,536 tokens (Massive Context)</option>
+                  <option value="131072">131,072 tokens (Max 128k Window)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Advanced Parameters -->
+          <div class="form-section">
+            <div class="expand-toggle" id="btnToggleAdv">
+              <span>⚙️ Advanced: KV Cache Type &amp; Concurrency</span>
+              <span id="advIcon">+</span>
+            </div>
+            <div class="adv-drawer hidden" id="advDrawer">
+              <div class="form-row-2">
+                <div class="field">
+                  <label for="kvQuant">KV Cache Quantization</label>
+                  <select id="kvQuant" class="input-select">
+                    <option value="fp16" selected>FP16 (Standard / Lossless)</option>
+                    <option value="q8_0">Q8_0 Cache (~50% less KV VRAM)</option>
+                    <option value="q4_0">Q4_0 FlashCache (~75% less KV VRAM)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="concurrency">Concurrent Users / Streams</label>
+                  <input type="number" id="concurrency" min="1" max="16" value="1" class="input-num">
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Column 2: Live Diagnostic & Results Display -->
+      <div class="results-col">
+
+        <!-- Verdict Banner -->
+        <div class="verdict-banner" id="verdictBanner">
+          <div class="verdict-icon" id="verdictIcon">⚡</div>
+          <div class="verdict-info">
+            <h3 id="verdictTitle">Calculating...</h3>
+            <p id="verdictSub">Analyzing memory architecture and quantization ratios</p>
+          </div>
+          <div class="verdict-speed" id="verdictSpeed">
+            <span class="speed-num" id="speedEst">--</span>
+            <span class="speed-lbl">est. tok/s</span>
+          </div>
+        </div>
+
+        <!-- Memory Breakdown Card -->
+        <div class="card memory-card">
+          <div class="card-header-simple">
+            <span class="header-tag">VRAM Utilization Matrix</span>
+            <span class="header-cap" id="memorySummary">0 / 0 GB</span>
+          </div>
+
+          <!-- Stacked Bar Graph -->
+          <div class="memory-bar-wrap">
+            <div class="memory-bar">
+              <div class="bar-seg seg-weights" id="barWeights" style="width: 0%;" title="Model Weights"></div>
+              <div class="bar-seg seg-kv" id="barKv" style="width: 0%;" title="KV Context Cache"></div>
+              <div class="bar-seg seg-overhead" id="barOverhead" style="width: 0%;" title="OS & Runtime Overhead"></div>
+            </div>
+            <div class="limit-marker" id="limitMarker"></div>
+          </div>
+
+          <!-- Legend Table -->
+          <div class="legend-grid">
+            <div class="legend-item">
+              <span class="dot dot-weights"></span>
+              <div>
+                <strong id="valWeights">0.0 GB</strong>
+                <small>Model Weights</small>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="dot dot-kv"></span>
+              <div>
+                <strong id="valKv">0.0 GB</strong>
+                <small>Context Cache (KV)</small>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="dot dot-overhead"></span>
+              <div>
+                <strong id="valOverhead">0.0 GB</strong>
+                <small>OS &amp; Driver Overhead</small>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="dot dot-free"></span>
+              <div>
+                <strong id="valFree">0.0 GB</strong>
+                <small>Available Headroom</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click CLI Runner & Recommended Command -->
+        <div class="card terminal-card">
+          <div class="terminal-bar">
+            <div class="term-dots">
+              <span class="t-red"></span>
+              <span class="t-yellow"></span>
+              <span class="t-green"></span>
+            </div>
+            <span class="term-title">Instant Ollama / Llama.cpp CLI Command</span>
+            <button class="btn-copy" id="btnCopyCommand">📋 Copy</button>
+          </div>
+          <div class="terminal-body">
+            <code id="cliCommand">ollama run deepseek-r1:8b</code>
+          </div>
+        </div>
+
+        <!-- Optimization Recommendation -->
+        <div class="card advice-card" id="adviceCard">
+          <div class="advice-header">
+            <span id="adviceIcon">💡</span>
+            <strong id="adviceTitle">Architecture Recommendation</strong>
+          </div>
+          <p id="adviceBody">Select your hardware and model configuration to receive automated deployment recommendations.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Power & Electricity Cost Calculator Section -->
+  <section id="power-calc" class="section power-section">
+    <div class="container">
+      <div class="section-tag-center">Operating Economics</div>
+      <h2 class="section-heading text-center">24/7 Local AI Electricity Cost Estimator</h2>
+      <p class="section-lead text-center">Cloud APIs charge per million tokens. Running locally charges in kilowatt-hours. Calculate your actual monthly power bill.</p>
+
+      <div class="power-grid card">
+        <div class="power-inputs">
+          <div class="form-row-2">
+            <div class="field">
+              <label for="gpuWatts">System Under-Load Power (Watts)</label>
+              <div class="input-unit-wrap">
+                <input type="number" id="gpuWatts" min="20" max="2500" value="280" class="input-num">
+                <span class="unit-tag">Watts (W)</span>
+              </div>
+              <small class="field-hint">e.g., RTX 3060: ~170W, RTX 4090: ~450W, Mac Mini: ~35W</small>
+            </div>
+
+            <div class="field">
+              <label for="kwhRate">Electricity Rate ($ / kWh)</label>
+              <div class="input-unit-wrap">
+                <input type="number" id="kwhRate" min="0.01" max="1.50" step="0.01" value="0.16" class="input-num">
+                <span class="unit-tag">$/kWh</span>
+              </div>
+              <small class="field-hint">US Average: ~$0.16/kWh, Europe: ~$0.32/kWh</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="dailyHours">Average Daily Utilization (Hours/Day)</label>
+            <div class="slider-field">
+              <input type="range" id="dailyHours" min="1" max="24" value="8" class="range-slider">
+              <div class="range-marks">
+                <span>1h (Casual QA)</span>
+                <span>8h (Workday Dev)</span>
+                <span>24h (Dedicated 24/7 Agent)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Power Output Summary -->
+        <div class="power-results">
+          <div class="power-metric">
+            <span class="p-label">Estimated Monthly Bill</span>
+            <span class="p-cost" id="monthlyCost">$10.75</span>
+            <span class="p-sub" id="monthlyKwh">67.2 kWh/month</span>
+          </div>
+          <div class="power-metric">
+            <span class="p-label">Yearly Power Expenditure</span>
+            <span class="p-cost cost-year" id="yearlyCost">$129.02</span>
+            <span class="p-sub" id="cloudComparison">Saves ~$480 vs ChatGPT Plus ($240/yr) &amp; Claude Pro ($240/yr)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Model Reference Table -->
+  <section id="benchmarks" class="section benchmark-section">
+    <div class="container">
+      <div class="section-tag-center">Reference Cheatsheet</div>
+      <h2 class="section-heading text-center">Popular Open Weights Quick Sizing Guide</h2>
+      <p class="section-lead text-center">Fast reference table showing minimum VRAM required for pure GPU execution at 4-bit vs 8-bit precision.</p>
+
+      <div class="table-wrap card">
+        <table class="bench-table">
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th>Total Params</th>
+              <th>Architecture</th>
+              <th>Min. VRAM (Q4_K_M)</th>
+              <th>Min. VRAM (Q8_0)</th>
+              <th>Recommended Minimum GPU</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="hot-badge">NEW</span> <strong>DeepSeek-R1 (8B)</strong></td>
+              <td>8.0 Billion</td>
+              <td>Dense Llama-Distill</td>
+              <td><span class="chip-green">6.2 GB</span></td>
+              <td>10.1 GB</td>
+              <td>RTX 3060 (12GB) or Mac 16GB</td>
+            </tr>
+            <tr>
+              <td><span class="hot-badge">NEW</span> <strong>DeepSeek-R1 (14B)</strong></td>
+              <td>14.7 Billion</td>
+              <td>Dense Qwen-Distill</td>
+              <td><span class="chip-green">10.4 GB</span></td>
+              <td>17.2 GB</td>
+              <td>RTX 4070 (12GB) or RTX 3060</td>
+            </tr>
+            <tr>
+              <td><span class="hot-badge">NEW</span> <strong>DeepSeek-R1 (32B)</strong></td>
+              <td>32.8 Billion</td>
+              <td>Dense Qwen-Distill</td>
+              <td><span class="chip-yellow">21.8 GB</span></td>
+              <td>36.5 GB</td>
+              <td>RTX 4090 (24GB) or Mac 36GB</td>
+            </tr>
+            <tr>
+              <td><span class="hot-badge">HOT</span> <strong>DeepSeek-R1 (70B)</strong></td>
+              <td>70.6 Billion</td>
+              <td>Dense Llama-Distill</td>
+              <td><span class="chip-yellow">44.5 GB</span></td>
+              <td>76.0 GB</td>
+              <td>Dual RTX 3090 (48GB) or Mac 64GB</td>
+            </tr>
+            <tr>
+              <td><strong>Meta Llama 3.3 (70B)</strong></td>
+              <td>70.6 Billion</td>
+              <td>Dense Grouped-Query</td>
+              <td><span class="chip-yellow">43.8 GB</span></td>
+              <td>75.2 GB</td>
+              <td>Dual RTX 3090 (48GB) or Mac 64GB</td>
+            </tr>
+            <tr>
+              <td><strong>Alibaba Qwen 2.5 Coder (32B)</strong></td>
+              <td>32.5 Billion</td>
+              <td>Dense RoPE Coder</td>
+              <td><span class="chip-yellow">21.2 GB</span></td>
+              <td>35.8 GB</td>
+              <td>RTX 3090 / 4090 (24GB)</td>
+            </tr>
+            <tr>
+              <td><strong>FLUX.1 [schnell]</strong></td>
+              <td>12.0 Billion</td>
+              <td>Flow Matching DiT</td>
+              <td><span class="chip-green">12.5 GB</span></td>
+              <td>18.0 GB</td>
+              <td>RTX 3060 (12GB with low VRAM offload)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section faq-section">
+    <div class="container faq-container">
+      <div class="section-tag-center">Knowledge Base</div>
+      <h2 class="section-heading text-center">Frequently Asked Questions About Local AI</h2>
+
+      <div class="faq-accordion">
+        <div class="faq-item">
+          <button class="faq-btn">
+            <span>What happens if my model exceeds my GPU VRAM?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <p>Frameworks like <strong>Ollama</strong> and <strong>Llama.cpp</strong> will automatically split the layers: as many layers as fit go into your fast GPU VRAM, and the rest overflow into system RAM. While the model will still run, token generation speed usually drops from <strong>40-60 tokens/sec down to 2-6 tokens/sec</strong> because system RAM bandwidth (60 GB/s) is 15x slower than GPU VRAM (1,000 GB/s).</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-btn">
+            <span>Why is Apple Silicon (Mac M1/M2/M3/M4) so popular for large models?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <p>Apple uses <strong>Unified Memory Architecture (UMA)</strong>. On a 64GB or 128GB Mac Studio, the GPU can access up to 75%-80% of total system RAM directly. To get 64GB or 128GB of VRAM on a PC, you would need multiple expensive enterprise GPUs (like dual RTX 3090s or an RTX 6000 Ada costing $7,000+).</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-btn">
+            <span>What does Q4_K_M vs Q8_0 mean in Ollama models?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <p><strong>Quantization</strong> compresses 16-bit floating point weights into 4-bit (Q4) or 8-bit (Q8) integers. <strong>Q4_K_M</strong> reduces the model size by ~70% with less than a 1% loss in reasoning ability, making it the golden standard default for local execution.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-btn">
+            <span>Why does a large context window (e.g. 32k or 128k) require so much VRAM?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <p>The model must store the Key-Value (KV) attention matrices for every token in history across all transformer layers. At 128k context, the KV cache alone can consume <strong>8GB to 14GB of VRAM</strong> on top of the model weights!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-wrap">
+      <div class="footer-left">
+        <span class="footer-brand">VRAMForge</span>
+        <p>Built for the local AI &amp; open-weight community. Empowering self-hosted, private intelligence.</p>
+      </div>
+      <div class="footer-right">
+        <span>© 2026 VRAMForge. Open-Source Calculations &bull; Free Utility.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
